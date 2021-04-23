@@ -49,7 +49,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.add_flow(datapath, 0, match, actions)
 
         if datapath.id == 1:
-            self.add_group_mod(datapath)
+            self.send_group_mod(datapath)
             actions = [parser.OFPActionGroup(group_id=50)]
             match = parser.OFPMatch(in_port=3)
             self.add_flow(datapath, 10, match, actions)
@@ -63,7 +63,7 @@ class SimpleSwitch13(app_manager.RyuApp):
             self.add_flow(datapath, 10, match, actions)
 
         if datapath.id == 5:
-            self.add_group_mod(datapath)
+            self.send_group_mod(datapath)
             actions = [parser.OFPActionGroup(group_id=50)]
             match = parser.OFPMatch(in_port=3)
             self.add_flow(datapath, 10, match, actions)
@@ -161,5 +161,5 @@ class SimpleSwitch13(app_manager.RyuApp):
         buckets = [parser.OFPBucket(weight1, port_masuk, group, actions=actions1),
                     parser.OFPBucket(weight2, port_masuk, group, actions=actions2)]
         
-        req = parser.OFPGroundMod(datapath, ofproto.OFPGC_ADD, ofproto.OFPGT_SELECT, 50, buckets)
+        req = parser.OFPGroupMod(datapath, ofproto.OFPGC_ADD, ofproto.OFPGT_SELECT, 50, buckets)
         datapath.send_msg(req)
