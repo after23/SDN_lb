@@ -127,7 +127,7 @@ class ShareIt(app_manager.RyuApp):
 
 		# learn a mac address to avoid FLOOD next time.
 		self.mac_to_port[dpid][src] = in_port			
-		self.logger.info("Ether Type: %s", eth.ethertype)
+		#self.logger.info("Ether Type: %s", eth.ethertype)
 		if eth.ethertype == ether_types.ETH_TYPE_LLDP:
 			# ignore lldp packet
 			return
@@ -143,6 +143,7 @@ class ShareIt(app_manager.RyuApp):
 				buffer_id = msg.buffer_id #id assigned by datapath - keep track of buffered packet
 				port_no = ofproto.OFPP_ANY #for any port number
 				data = arp_reply.data
+				self.logger.info(data)
 				out = parser.OFPPacketOut(datapath=datapath, buffer_id=buffer_id, in_port=port_no, actions=actions, data=data)
 				datapath.send_msg(out)
 				self.logger.info("ARP Request handled")				
