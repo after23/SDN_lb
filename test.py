@@ -219,14 +219,16 @@ class ShareIt(app_manager.RyuApp):
 						self.add_flow(datapath, 1, match, actions)
 				data = None
 				if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-				    data = msg.data
+					data = msg.data
 				out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id, in_port=in_port, actions=actions, data=data)
 				datapath.send_msg(out)
 				return
 
 		except:
 			pass
-		ip_head = pkt.get_protocols(ipv4.ipv4)[0]
+
+		if eth.ethertype == 2048:
+			ip_head = pkt.get_protocols(ipv4.ipv4)[0]
 		tcp_head = pkt.get_protocols(tcp.tcp)[0]
 
 		# pingall before executing load balancer functionality
