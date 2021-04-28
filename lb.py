@@ -26,6 +26,15 @@ from ryu.lib.packet import ether_types
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
+    VIRTUAL_IP = '10.0.0.100'  # The virtual server IP
+
+    SERVER1_IP = '10.0.0.11'
+    SERVER1_MAC = '00:00:00:11:11:11'
+    SERVER1_PORT = 1
+    SERVER2_IP = '10.0.0.22'
+    SERVER2_MAC = '00:00:00:22:22:22'
+    SERVER2_PORT = 2
+
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
@@ -143,17 +152,14 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         weight1 = 33
         weight2 = 33
-        weight3 = 33
 
-        port_masuk = ofproto_v1_3.OFPP_ANY  
+        port_masuk = parser.OFPMatch(ipv4_dst=self.VIRTUAL_IP) 
         group = ofproto_v1_3.OFPQ_ALL
 
-        actions1 = [parser.OFPActionOutput(1)]
-        actions2 = [parser.OFPActionOutput(2)]
-        actions2 = [parser.OFPActionOutput(3)]
+        actions1 = [parser.OFPActionOutput(self.SERVER1_PORT)]
+        actions2 = [parser.OFPActionOutput(self.SERVER2_PORT)]
         buckets = [parser.OFPBucket(weight1, port_masuk, group, actions=actions1),
-                    parser.OFPBucket(weight2, port_masuk, group, actions=actions2),
-                    parser.OFPBucket(weight3, port_masuk, group, actions=actions3)]
+                    parser.OFPBucket(weight2, port_masuk, group, actions=actions2)]
         
         req = parser.OFPGroupMod(datapath, ofproto.OFPGC_ADD, ofproto.OFPGT_SELECT, 50, buckets)
         datapath.send_msg(req)
