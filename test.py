@@ -134,7 +134,7 @@ class ShareIt(app_manager.RyuApp):
 			
 		if eth.ethertype == 2054:
 			arp_head = pkt.get_protocols(arp.arp)[0]
-			if arp_head.dst_ip self.dummyIP:
+			if arp_head.dst_ip == self.dummyIP:
 				#dmac and dIP for ARP Reply
 				a_r_ip = arp_head.src_ip
 				a_r_mac = arp_head.src_mac
