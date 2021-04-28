@@ -211,9 +211,10 @@ class SimpleSwitch13(app_manager.RyuApp):
 
                 flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=30, instructions=instruction2, cookie=cookie)
                 datapath.send_msg(flow_mod2)
+                self.serverNumber = self.serverNumber + 1
             except IndexError:
                 pass
 
-        self.serverNumber = self.serverNumber + 1
+        
         self.logger.info("Redirecting done...2")
         self.logger.info(self.mac_to_port)
