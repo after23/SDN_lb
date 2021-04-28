@@ -134,7 +134,7 @@ class ShareIt(app_manager.RyuApp):
 			
 		if eth.ethertype == 2054:
 			arp_head = pkt.get_protocols(arp.arp)[0]
-			if arp_head.dst_ip in [server['ip'] for server in self.servers]:
+			if arp_head.dst_ip self.dummyIP:
 				#dmac and dIP for ARP Reply
 				a_r_ip = arp_head.src_ip
 				a_r_mac = arp_head.src_mac
@@ -143,7 +143,7 @@ class ShareIt(app_manager.RyuApp):
 				buffer_id = msg.buffer_id #id assigned by datapath - keep track of buffered packet
 				port_no = ofproto.OFPP_ANY #for any port number
 				data = arp_reply.data
-				self.logger.info(data)
+				#self.logger.info(data)
 				out = parser.OFPPacketOut(datapath=datapath, buffer_id=buffer_id, in_port=port_no, actions=actions, data=data)
 				datapath.send_msg(out)
 				self.logger.info("ARP Request handled")				
