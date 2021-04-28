@@ -21,9 +21,9 @@ class ShareIt(app_manager.RyuApp):
 	OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
 	def __init__(self, *args, **kwargs):
-        	super(ShareIt, self).__init__(*args, **kwargs)
-        	self.mac_to_port = {}
-		self.servers = []
+        super(ShareIt, self).__init__(*args, **kwargs)
+        self.mac_to_port = {}
+	    self.servers = []
 		self.servers.append({'ip':"10.0.0.1", 'mac':"00:00:00:00:00:01"})
 		self.servers.append({'ip':"10.0.0.2", 'mac':"00:00:00:00:00:02"})
 		self.servers.append({'ip':"10.0.0.3", 'mac':"00:00:00:00:00:03"})
