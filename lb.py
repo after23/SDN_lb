@@ -60,21 +60,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         if datapath.id == 1:
             self.send_group_mod_in(datapath)
             actions = [parser.OFPActionGroup(group_id=50)]
-            match = parser.OFPMatch(in_port=4)
+            match = parser.OFPMatch(ipv4_dst=self.VIRTUAL_IP)
             self.add_flow(datapath, 10, match, actions)
-
-            actions = [parser.OFPActionGroup(group_id=50)]
-            match = parser.OFPMatch(in_port=5)
-            self.add_flow(datapath, 10, match, actions)
-            
-            actions = [parser.OFPActionGroup(group_id=50)]
-            match = parser.OFPMatch(in_port=6)
-            self.add_flow(datapath, 10, match, actions)
-
-            actions = [parser.OFPActionGroup(group_id=50)]
-            match = parser.OFPMatch(in_port=7)
-            self.add_flow(datapath, 10, match, actions)
-
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         ofproto = datapath.ofproto
