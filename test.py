@@ -259,7 +259,7 @@ class ShareIt(app_manager.RyuApp):
 		
 		self.logger.info("Redirecting data request packet to one of the Servers")
 		#Redirecting data request packet to Server
-		match = parser.OFPMatch(in_port=in_port, eth_type=eth.ethertype, eth_src=eth.src, eth_dst=eth.dst, ip_proto=ip_head.proto, ipv4_src=ip_head.src, ipv4_dst=ip_head.dst, tcp_src=tcp_head.src_port, tcp_dst=tcp_head.dst_port)
+		match = parser.OFPMatch(in_port=in_port, eth_type=eth.ethertype, eth_src=eth.src, eth_dst=eth.dst, ipv4_src=ip_head.src, ipv4_dst=ip_head.dst, tcp_src=tcp_head.src_port, tcp_dst=tcp_head.dst_port)
 		self.logger.info("Data request being sent to Server: IP: %s, MAC: %s", choice_ip, choice_mac)
 		actions = [parser.OFPActionSetField(eth_dst=choice_mac), parser.OFPActionSetField(ipv4_dst=choice_ip), parser.OFPActionOutput(choice_server_port)]
 		instruction1 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
