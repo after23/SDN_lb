@@ -58,9 +58,9 @@ class ShareIt(app_manager.RyuApp):
 
 		inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
 											 actions)]
-			if buffer_id:
+		if buffer_id:
 			mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id, priority=priority, match=match, instructions=inst)
-			else:
+		else:
 					mod = parser.OFPFlowMod(datapath=datapath, priority=priority, match=match, instructions=inst)
 			datapath.send_msg(mod)
 		self.logger.info("Done adding flows")
@@ -97,9 +97,8 @@ class ShareIt(app_manager.RyuApp):
 		self.logger.info("Entered main mode event handling")
 			# If you hit this you might want to increase
 			# the "miss_send_length" of your switch
-			if ev.msg.msg_len < ev.msg.total_len:
-				self.logger.debug("packet truncated: only %s of %s bytes",
-							  ev.msg.msg_len, ev.msg.total_len)
+		if ev.msg.msg_len < ev.msg.total_len:
+			self.logger.debug("packet truncated: only %s of %s bytes",ev.msg.msg_len, ev.msg.total_len)
 		if self.serverNumber == 3:
 			self.serverNumber = 0
 							  
