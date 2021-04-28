@@ -15,7 +15,7 @@
 
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import MAIN_DISPATCHER
+from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
@@ -53,37 +53,6 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.cur_ser = self.ser1_ip
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
-    def switch_features_handler(self, ev):
-        datapath = ev.msg.datapath
-        ofproto = datapath.ofproto
-        parser = datapath.ofproto_parser
-
-        # install table-miss flow entry
-        #
-        # We specify NO BUFFER to max_len of the output action due to
-        # OVS bug. At this moment, if we specify a lesser number, e.g.,
-        # 128, OVS will send Packet-In with invalid buffer_id and
-        # truncated packet data. In that case, we cannot output packets
-        # correctly.  The bug has been fixed in OVS v2.1.0.
-        match = parser.OFPMatch()
-        actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
-                                          ofproto.OFPCML_NO_BUFFER)]
-        self.add_flow_miss(datapath, 0, match, actions)
-
-    def add_flow_miss(self, datapath, priority, match, actions, buffer_id=None):
-        ofproto = datapath.ofproto
-        parser = datapath.ofproto_parser
-
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
-                                             actions)]
-        if buffer_id:
-            mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
-                                    priority=priority, match=match,
-                                    instructions=inst)
-        else:
-            mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
-                                    match=match, instructions=inst)
-        datapath.send_msg(mod)
 
     def add_flow_lb(self, datapath, packet, ofp_parser, ofp, in_port):
         srcIp = packet.get_protocol(arp.arp).src_ip
@@ -97,12 +66,12 @@ class SimpleSwitch13(app_manager.RyuApp):
                                     ipv4_dst=self.virtual_ip,
                                     eth_type=0x0800)
         actions = [ofp_parser.OFPActionSetField(ipv4_dst=self.cur_ser),
-                   ofp_parser.OFPActionOutput(self.ip_to_port[self.cur_ser])]
+                   ofp_parser.OFPActionOutput(self.ser_ip_to_port[self.cur_ser])]
         inst = [ofp_parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
         
         mod = ofp_parser.OFPFlowMod(
             datapath=datapath,
-            priority=0,
+            priority=100,
             buffer_id=ofp.OFP_NO_BUFFER,
             match=match,
             instructions=inst)
@@ -146,30 +115,30 @@ class SimpleSwitch13(app_manager.RyuApp):
         else:
             return
 
-        def arp_response(self, datapath, packet, eth, parser, ofproto, in_port):
-            arp_packet = packet.get_protocol(arp.arp)
-            dstIp = arp_packet.src_ip
-            srcIp = arp_packet.dst_ip
-            dstMac = eth.src
+    def arp_response(self, datapath, packet, eth, parser, ofproto, in_port):
+        arp_packet = packet.get_protocol(arp.arp)
+        dstIp = arp_packet.src_ip
+        srcIp = arp_packet.dst_ip
+        dstMac = eth.src
 
-            if dstIp != self.ser1_ip and dstIp != self.ser2.ip and dstIp != self.ser3_ip:
-                if self.next_ser == self.ser1_ip:
-                    srcMac = self.ser1_mac
-                    self.next_ser = self.ser2_ip
-                elif self.next_ser == self.ser2_ip:
-                    srcMac = self.ser2_mac
-                else:
-                    srcMac = self.ser3_mac
+        if dstIp != self.ser1_ip or dstIp != self.ser2_ip or dstIp != self.ser3_ip:
+            if self.next_ser == self.ser1_ip:
+                srcMac = self.ser1_mac
+                self.next_ser = self.ser2_ip
+            elif self.next_ser == self.ser2_ip:
+                srcMac = self.ser2_mac
             else:
-                srcMac = self.ip_to_mac[srcIp]
+                srcMac = self.ser3_mac
+        else:
+            srcMac = self.ip_to_mac[srcIp]
 
-            e = ethernet.ethernet(dstMac, srcMac, ether_types.ETH_TYPE_ARP)
-            a = arp.arp(1, 0x0800, 6, 4, 2, srcMac, srcIp, dstMac, dstIp)
-            p = packet()
-            p.add_protocol(e)
-            p.add_protocol(a)
-            p.serialize()
+        e = ethernet.ethernet(dstMac, srcMac, ether_types.ETH_TYPE_ARP)
+        a = arp.arp(1, 0x0800, 6, 4, 2, srcMac, srcIp, dstMac, dstIp)
+        p = Packet()
+        p.add_protocol(e)
+        p.add_protocol(a)
+        p.serialize()
 
-            actions= [ofp_parser.OFPActionOutput(ofp.OFPP_IN_PORT)]
-            out = ofp_parser.OFPPacketOut(datapath=datapath, buffer_id = OFP_NO_BUFFER, in_port=in_port, actions = actions, data=p.data)
-            datapath.send_msg(out)
+        actions= [parser.OFPActionOutput(ofproto.OFPP_IN_PORT)]
+        out = parser.OFPPacketOut(datapath=datapath, buffer_id = ofproto.OFP_NO_BUFFER, in_port=in_port, actions = actions, data=p.data)
+        datapath.send_msg(out)
