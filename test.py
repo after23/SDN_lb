@@ -108,17 +108,17 @@ class ShareIt(app_manager.RyuApp):
 			#fetch all details of the event
 		msg = ev.msg
 		datapath = msg.datapath
-	   	ofproto = datapath.ofproto
-	   	parser = datapath.ofproto_parser
-	   	in_port = msg.match['in_port']
+		ofproto = datapath.ofproto
+		parser = datapath.ofproto_parser
+		in_port = msg.match['in_port']
 		dpid = datapath.id
 
-	   	pkt = packet.Packet(msg.data)
-	   	eth = pkt.get_protocols(ethernet.ethernet)[0]
+		pkt = packet.Packet(msg.data)
+		eth = pkt.get_protocols(ethernet.ethernet)[0]
 
 
 		dst = eth.dst
-	   	src = eth.src
+		src = eth.src
 
 		dpid = datapath.id
 		self.mac_to_port.setdefault(dpid, {})
@@ -126,7 +126,7 @@ class ShareIt(app_manager.RyuApp):
 		self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)		
 
 		# learn a mac address to avoid FLOOD next time.
-		self.mac_to_port[dpid][src] = in_port	   		
+		self.mac_to_port[dpid][src] = in_port			
 		self.logger.info("Ether Type: %s", eth.ethertype)
 		if eth.ethertype == ether_types.ETH_TYPE_LLDP:
 			# ignore lldp packet
@@ -198,7 +198,7 @@ class ShareIt(app_manager.RyuApp):
 
 					self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
-	   				# learn a mac address to avoid FLOOD next time.
+					# learn a mac address to avoid FLOOD next time.
 					self.mac_to_port[dpid][src] = in_port
 
 					if dst in self.mac_to_port[dpid]:
