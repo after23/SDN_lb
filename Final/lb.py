@@ -87,7 +87,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         srcIp = packet.get_protocol(arp.arp).src_ip
 
         # Don't push forwarding rules if an ARP request is received from a server.
-        if srcIp == self.ser1_ip or srcIp == self.ser2_ip, or srcIp == self.ser3_ip:
+        if srcIp == self.ser1_ip or srcIp == self.ser2_ip or srcIp == self.ser3_ip:
             return
 
         # Generate flow from host to server.
