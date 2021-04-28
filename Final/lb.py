@@ -15,10 +15,12 @@
 
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
+from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
+from ryu.lib.packet.packet import Packet
+from ryu.lib.packet import arp
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
@@ -134,10 +136,10 @@ class SimpleSwitch13(app_manager.RyuApp):
         in_port = msg.match['in_port']
 
         pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocols(ethernet.ethernet)
+        eth = pkt.get_protocols(ethernet.ethernet)[0]
 
         if eth.ethertype == ether_types.ETH_TYPE_ARP:
-            self.add_flow_lb(datapath, pkt, parser, in_port)
+            self.add_flow_lb(datapath, pkt, parser, ofproto, in_port)
             self.arp_response(datapath, pkt, eth, parser, ofproto, in_port)
             self.cur_ser = self.next_ser
             return
