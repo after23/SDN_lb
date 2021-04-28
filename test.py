@@ -230,8 +230,8 @@ class ShareIt(app_manager.RyuApp):
 		
 
 
-		ip_head = pkt.get_protocols(ipv4.ipv4)[0]
-		tcp_head = pkt.get_protocols(tcp.tcp)[0]
+		ip_head = pkt.get_protocols(ipv4.ipv4)
+		tcp_head = pkt.get_protocols(tcp.tcp)
 
 		# pingall before executing load balancer functionality
 		self.logger.info("Trying to map ports and servers")
