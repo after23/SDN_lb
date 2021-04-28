@@ -134,7 +134,7 @@ class ShareIt(app_manager.RyuApp):
 			
 		if eth.ethertype == 2054:
 			arp_head = pkt.get_protocols(arp.arp)[0]
-			if arp_head.dst_ip == self.dummyIP:
+			if arp_head.dst_ip in [server['ip'] for server in self.servers]:
 				#dmac and dIP for ARP Reply
 				a_r_ip = arp_head.src_ip
 				a_r_mac = arp_head.src_mac
@@ -186,49 +186,49 @@ class ShareIt(app_manager.RyuApp):
 					return
 	
 		
-		try:
-			if pkt.get_protocols(icmp.icmp)[0]:
-			#if ip_head.proto == inet.IPPROTO_ICMP:
-				dst = eth.dst
-				src = eth.src
+		# try:
+		# 	if pkt.get_protocols(icmp.icmp)[0]:
+		# 	#if ip_head.proto == inet.IPPROTO_ICMP:
+		# 		dst = eth.dst
+		# 		src = eth.src
 
-				dpid = datapath.id
-				self.mac_to_port.setdefault(dpid, {})
+		# 		dpid = datapath.id
+		# 		self.mac_to_port.setdefault(dpid, {})
 
-				self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+		# 		self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
-				# learn a mac address to avoid FLOOD next time.
-				self.mac_to_port[dpid][src] = in_port
+		# 		# learn a mac address to avoid FLOOD next time.
+		# 		self.mac_to_port[dpid][src] = in_port
 
-				if dst in self.mac_to_port[dpid]:
-					out_port = self.mac_to_port[dpid][dst]
-				else:
-					out_port = ofproto.OFPP_FLOOD
+		# 		if dst in self.mac_to_port[dpid]:
+		# 			out_port = self.mac_to_port[dpid][dst]
+		# 		else:
+		# 			out_port = ofproto.OFPP_FLOOD
 	
-				actions = [parser.OFPActionOutput(out_port)]
+		# 		actions = [parser.OFPActionOutput(out_port)]
 
-				# install a flow to avoid packet_in next time
-				if out_port != ofproto.OFPP_FLOOD:
-					match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
-					# verify if we have a valid buffer_id, if yes avoid to send both
-					# flow_mod & packet_out
-					if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-						self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-						return
-					else:
-						self.add_flow(datapath, 1, match, actions)
-				data = None
-				if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-					data = msg.data
-				out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id, in_port=in_port, actions=actions, data=data)
-				datapath.send_msg(out)
-				return
+		# 		# install a flow to avoid packet_in next time
+		# 		if out_port != ofproto.OFPP_FLOOD:
+		# 			match = parser.OFPMatch(in_port=in_port, eth_dst=dst)
+		# 			# verify if we have a valid buffer_id, if yes avoid to send both
+		# 			# flow_mod & packet_out
+		# 			if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+		# 				self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+		# 				return
+		# 			else:
+		# 				self.add_flow(datapath, 1, match, actions)
+		# 		data = None
+		# 		if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+		# 			data = msg.data
+		# 		out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id, in_port=in_port, actions=actions, data=data)
+		# 		datapath.send_msg(out)
+		# 		return
 
-		except:
-			pass
+		# except:
+		# 	pass
 
-		if eth.ethertype == 2048:
-			ip_head = pkt.get_protocols(ipv4.ipv4)[0]
+		# if eth.ethertype == 2048:
+		# 	ip_head = pkt.get_protocols(ipv4.ipv4)[0]
 		#tcp_head = pkt.get_protocols(tcp.tcp)[0]
 
 		# pingall before executing load balancer functionality
