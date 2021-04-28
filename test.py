@@ -128,11 +128,11 @@ class SimpleSwitch13(app_manager.RyuApp):
         if eth.ethertype == ether_types.ETH_TYPE_ARP:
             arp_header = pkt.get_protocol(arp.arp)
 
-            if arp_header.dst_ip == self.VIRTUAL_IP and arp_header.opcode == arp.ARP_REQUEST:
-                self.logger.info("***************************")
-                self.logger.info("---Handle ARP Packet---")
+            if arp_header.dst_ip == self.SERVER1_IP or arp_header.dst_ip == self.SERVER2_IP:
+                # self.logger.info("***************************")
+                # self.logger.info("---Handle ARP Packet---")
                 # Build an ARP reply packet using source IP and source MAC
-                reply_packet = self.generate_arp_reply(arp_header.src_ip, arp_header.src_mac)
+                reply_packet = self.generate_arp_reply(arp_header.src_ip, arp_header.src_mac, arp_header.dst_ip)
                 actions = [parser.OFPActionOutput(in_port)]
                 packet_out = parser.OFPPacketOut(datapath=datapath, in_port=ofproto.OFPP_ANY,
                                                  data=reply_packet.data, actions=actions, buffer_id=0xffffffff)
@@ -161,19 +161,13 @@ class SimpleSwitch13(app_manager.RyuApp):
         datapath.send_msg(out)
 
     # Source IP and MAC passed here now become the destination for the reply packet
-    def generate_arp_reply(self, dst_ip, dst_mac):
+    def generate_arp_reply(self, dst_ip, dst_mac, src_mac):
         self.logger.info("Generating ARP Reply Packet")
         self.logger.info("ARP request client ip: " + dst_ip + ", client mac: " + dst_mac)
         arp_target_ip = dst_ip  # the sender ip
         arp_target_mac = dst_mac  # the sender mac
         # Making the load balancer IP as source IP
         src_ip = self.VIRTUAL_IP
-
-        if haddr_to_int(arp_target_mac) % 2 == 1:
-            src_mac = self.SERVER1_MAC
-        else:
-            src_mac = self.SERVER2_MAC
-        self.logger.info("Selected server MAC: " + src_mac)
 
         pkt = packet.Packet()
         pkt.add_protocol(
