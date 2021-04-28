@@ -175,9 +175,11 @@ class ShareIt(app_manager.RyuApp):
 					# flow_mod & packet_out
 					if msg.buffer_id != ofproto.OFP_NO_BUFFER:
 						self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+						self.logger.info("should added flow buf")
 						return
 					else:
 						self.add_flow(datapath, 1, match, actions)
+						self.logger.info("should added flow not buf")
 					data = None
 					if msg.buffer_id == ofproto.OFP_NO_BUFFER:
 						data = msg.data
