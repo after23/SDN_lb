@@ -194,7 +194,7 @@ class SimpleSwitch13(app_manager.RyuApp):
             actions = [parser.OFPActionSetField(eth_dst=choice_mac), parser.OFPActionSetField(ipv4_dst=choice_ip), parser.OFPActionOutput(choice_server_port)]
             instruction1 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
             #cookie = random.randint(0, 0xffffffffffffffff)
-            flow_mod = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction1, buffer_id = msg.buffer_id)
+            flow_mod = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=30, instructions=instruction1, buffer_id = msg.buffer_id)
             datapath.send_msg(flow_mod)
 
             self.logger.info("Redirection done...1")
@@ -207,7 +207,7 @@ class SimpleSwitch13(app_manager.RyuApp):
             instruction2 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
             #cookie = random.randint(0, 0xffffffffffffffff)
 
-            flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction2)
+            flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=30, instructions=instruction2)
             datapath.send_msg(flow_mod2)
 
         self.serverNumber = self.serverNumber + 1
