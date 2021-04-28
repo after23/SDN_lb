@@ -61,8 +61,8 @@ class ShareIt(app_manager.RyuApp):
 		if buffer_id:
 			mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id, priority=priority, match=match, instructions=inst)
 		else:
-					mod = parser.OFPFlowMod(datapath=datapath, priority=priority, match=match, instructions=inst)
-			datapath.send_msg(mod)
+			mod = parser.OFPFlowMod(datapath=datapath, priority=priority, match=match, instructions=inst)
+		datapath.send_msg(mod)
 		self.logger.info("Done adding flows")
 	
 	def handle_arp_for_server(self, dmac, dip):
