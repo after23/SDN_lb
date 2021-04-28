@@ -125,12 +125,12 @@ class ShareIt(app_manager.RyuApp):
 
 		self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)		
 
-		# learn a mac address to avoid FLOOD next time.
-		self.mac_to_port[dpid][src] = in_port			
-		#self.logger.info("Ether Type: %s", eth.ethertype)
-		if eth.ethertype == ether_types.ETH_TYPE_LLDP:
-			# ignore lldp packet
-			return
+		# # learn a mac address to avoid FLOOD next time.
+		# self.mac_to_port[dpid][src] = in_port			
+		# #self.logger.info("Ether Type: %s", eth.ethertype)
+		# if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+		# 	# ignore lldp packet
+		# 	return
 			
 		if eth.ethertype == 2054:
 			arp_head = pkt.get_protocols(arp.arp)[0]
@@ -264,7 +264,7 @@ class ShareIt(app_manager.RyuApp):
 			actions = [parser.OFPActionSetField(eth_dst=choice_mac), parser.OFPActionSetField(ipv4_dst=choice_ip), parser.OFPActionOutput(choice_server_port)]
 			instruction1 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
 			#cookie = random.randint(0, 0xffffffffffffffff)
-			flow_mod = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction1, buffer_id = msg.buffer_id, cookie=cookie)
+			flow_mod = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction1, buffer_id = msg.buffer_id)
 			datapath.send_msg(flow_mod)
 
 			self.logger.info("Redirection done...1")
@@ -277,7 +277,7 @@ class ShareIt(app_manager.RyuApp):
 			instruction2 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
 			#cookie = random.randint(0, 0xffffffffffffffff)
 
-			flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction2, cookie=cookie)
+			flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction2)
 			datapath.send_msg(flow_mod2)
 
 		self.serverNumber = self.serverNumber + 1
