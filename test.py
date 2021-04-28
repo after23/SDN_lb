@@ -280,4 +280,6 @@ class ShareIt(app_manager.RyuApp):
 			datapath.send_msg(flow_mod2)
 
 		self.serverNumber = self.serverNumber + 1
+		if self.serverNumber > 2:
+			self.serverNumber = 0
 		self.logger.info("Redirecting done...2")
