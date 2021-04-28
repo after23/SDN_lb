@@ -149,7 +149,7 @@ class ShareIt(app_manager.RyuApp):
 				self.logger.info("ARP Request handled")				
 				return
 			else:
-				self.logger,info("Masuk ke else gan!")
+				self.logger.info("Masuk ke else gan!")
 				dst = eth.dst
 				src = eth.src
 
