@@ -24,7 +24,7 @@ class ShareIt(app_manager.RyuApp):
 		super(ShareIt, self).__init__(*args, **kwargs)
 		self.mac_to_port = {}
 		self.servers = []
-		self.servers.append({'ip':"10.0.0.1", 'mac':"00:00:00:00:00:01"})
+		self.servers.append({'ip':"10.0.0.1", 'mac':"00:00:00:00:00:01", })
 		self.servers.append({'ip':"10.0.0.2", 'mac':"00:00:00:00:00:02"})
 		self.servers.append({'ip':"10.0.0.3", 'mac':"00:00:00:00:00:03"})
 		self.dummyIP = "10.0.0.100"
@@ -117,13 +117,13 @@ class ShareIt(app_manager.RyuApp):
 		eth = pkt.get_protocols(ethernet.ethernet)[0]
 
 
-		dst = eth.dst
-		src = eth.src
+		# dst = eth.dst
+		# src = eth.src
 
-		dpid = datapath.id
-		self.mac_to_port.setdefault(dpid, {})
+		# dpid = datapath.id
+		# self.mac_to_port.setdefault(dpid, {})
 
-		self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)		
+		# self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)		
 
 		# # learn a mac address to avoid FLOOD next time.
 		# self.mac_to_port[dpid][src] = in_port			
@@ -149,6 +149,7 @@ class ShareIt(app_manager.RyuApp):
 				self.logger.info("ARP Request handled")				
 				return
 			else:
+				self.logger,info("Masuk ke else gan!")
 				dst = eth.dst
 				src = eth.src
 
@@ -270,7 +271,7 @@ class ShareIt(app_manager.RyuApp):
 			self.logger.info("Redirection done...1")
 			self.logger.info("Redirecting data reply packet to the host")
 			#Redirecting data reply to respecitve Host
-			match = parser.OFPMatch(in_port=choice_server_port, eth_type=eth.ethertype, eth_src=choice_mac, eth_dst=eth.src, ip_proto=ip_head.proto, ipv4_src=choice_ip, ipv4_dst=ip_head.src)
+			match = parser.OFPMatch(in_port=choice_server_port, eth_type=eth.ethertype, eth_src=choice_mac, eth_dst=eth.dst, ip_proto=ip_head.proto, ipv4_src=choice_ip, ipv4_dst=ip_head.dst)
 			self.logger.info("Data reply coming from Server: IP: %s, MAC: %s", choice_ip, choice_mac)
 			actions = [parser.OFPActionSetField(eth_src=self.dummyMAC), parser.OFPActionSetField(ipv4_src=self.dummyIP), parser.OFPActionOutput(in_port) ]
 
@@ -281,6 +282,4 @@ class ShareIt(app_manager.RyuApp):
 			datapath.send_msg(flow_mod2)
 
 		self.serverNumber = self.serverNumber + 1
-		if self.serverNumber > 2:
-			self.serverNumber = 0
 		self.logger.info("Redirecting done...2")
