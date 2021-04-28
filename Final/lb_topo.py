@@ -32,7 +32,7 @@ from mininet.node import OVSSwitch, Controller, RemoteController
 from time import sleep
 
 
-class toplogi(Topo):
+class topologi(Topo):
     "Single switch connected to n hosts."
     def build(self):
         s1 = self.addSwitch('s1', protocols='OpenFlow13')
