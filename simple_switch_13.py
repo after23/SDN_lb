@@ -188,13 +188,15 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.logger.info("Redirecting data request packet to one of the Servers")
         #Redirecting data request packet to Server
         if eth.ethertype == 2048:
+            if eth.ethertype == 'icmp':
+                return
             ip_head = pkt.get_protocols(ipv4.ipv4)[0]
             match = parser.OFPMatch(in_port=in_port, eth_type=eth.ethertype, eth_src=eth.src, eth_dst=eth.dst, ip_proto=ip_head.proto, ipv4_src=ip_head.src, ipv4_dst=ip_head.dst)
             self.logger.info("Data request being sent to Server: IP: %s, MAC: %s", choice_ip, choice_mac)
             actions = [parser.OFPActionSetField(eth_dst=choice_mac), parser.OFPActionSetField(ipv4_dst=choice_ip), parser.OFPActionOutput(choice_server_port)]
             instruction1 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-            #cookie = random.randint(0, 0xffffffffffffffff)
-            flow_mod = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=30, instructions=instruction1, buffer_id = msg.buffer_id)
+            cookie = random.randint(0, 0xffffffffffffffff)
+            flow_mod = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=30, instructions=instruction1, buffer_id = msg.buffer_id, cookie=cookie)
             datapath.send_msg(flow_mod)
 
             self.logger.info("Redirection done...1")
@@ -205,9 +207,9 @@ class SimpleSwitch13(app_manager.RyuApp):
             actions = [parser.OFPActionSetField(eth_src=self.dummyMAC), parser.OFPActionSetField(ipv4_src=self.dummyIP), parser.OFPActionOutput(in_port) ]
 
             instruction2 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
-            #cookie = random.randint(0, 0xffffffffffffffff)
+            cookie = random.randint(0, 0xffffffffffffffff)
 
-            flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=30, instructions=instruction2)
+            flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=30, instructions=instruction2, cookie=cookie)
             datapath.send_msg(flow_mod2)
 
         self.serverNumber = self.serverNumber + 1
