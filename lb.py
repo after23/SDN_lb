@@ -49,32 +49,23 @@ class SimpleSwitch13(app_manager.RyuApp):
         self.add_flow(datapath, 0, match, actions)
 
         if datapath.id == 1:
-            self.send_group_mod(datapath)
+            self.send_group_mod_in(datapath)
             actions = [parser.OFPActionGroup(group_id=50)]
-            match = parser.OFPMatch(in_port=3)
+            match = parser.OFPMatch(in_port=4)
             self.add_flow(datapath, 10, match, actions)
 
-            actions = [parser.OFPActionOutput(3)]
-            match = parser.OFPMatch(in_port=1)
-            self.add_flow(datapath, 10, match, actions)
-
-            actions = [parser.OFPActionOutput(3)]
-            match = parser.OFPMatch(in_port=2)
-            self.add_flow(datapath, 10, match, actions)
-
-        if datapath.id == 5:
-            self.send_group_mod(datapath)
             actions = [parser.OFPActionGroup(group_id=50)]
-            match = parser.OFPMatch(in_port=3)
+            match = parser.OFPMatch(in_port=5)
+            self.add_flow(datapath, 10, match, actions)
+            
+            actions = [parser.OFPActionGroup(group_id=50)]
+            match = parser.OFPMatch(in_port=6)
             self.add_flow(datapath, 10, match, actions)
 
-            actions = [parser.OFPActionOutput(3)]
-            match = parser.OFPMatch(in_port=1)
+            actions = [parser.OFPActionGroup(group_id=50)]
+            match = parser.OFPMatch(in_port=7)
             self.add_flow(datapath, 10, match, actions)
 
-            actions = [parser.OFPActionOutput(3)]
-            match = parser.OFPMatch(in_port=2)
-            self.add_flow(datapath, 10, match, actions)
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         ofproto = datapath.ofproto
@@ -146,20 +137,23 @@ class SimpleSwitch13(app_manager.RyuApp):
                                   in_port=in_port, actions=actions, data=data)
         datapath.send_msg(out)
 
-    def send_group_mod(self, datapath):
+    def send_group_mod_in(self, datapath):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        weight1 = 70
-        weight2 = 30
+        weight1 = 33
+        weight2 = 33
+        weight3 = 33
 
         port_masuk = ofproto_v1_3.OFPP_ANY  
         group = ofproto_v1_3.OFPQ_ALL
 
         actions1 = [parser.OFPActionOutput(1)]
         actions2 = [parser.OFPActionOutput(2)]
+        actions2 = [parser.OFPActionOutput(3)]
         buckets = [parser.OFPBucket(weight1, port_masuk, group, actions=actions1),
-                    parser.OFPBucket(weight2, port_masuk, group, actions=actions2)]
+                    parser.OFPBucket(weight2, port_masuk, group, actions=actions2),
+                    parser.OFPBucket(weight3, port_masuk, group, actions=actions3)]
         
         req = parser.OFPGroupMod(datapath, ofproto.OFPGC_ADD, ofproto.OFPGT_SELECT, 50, buckets)
         datapath.send_msg(req)
