@@ -277,8 +277,8 @@ class ShareIt(app_manager.RyuApp):
 		instruction2 = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
 		cookie = random.randint(0, 0xffffffffffffffff)
 
-			flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction2, cookie=cookie)
-			datapath.send_msg(flow_mod2)
+		flow_mod2 = parser.OFPFlowMod(datapath=datapath, match=match, idle_timeout=5, instructions=instruction2, cookie=cookie)
+		datapath.send_msg(flow_mod2)
 
 		self.serverNumber = self.serverNumber + 1
 		self.logger.info("Redirecting done...2")
