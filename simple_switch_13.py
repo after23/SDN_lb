@@ -187,9 +187,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         self.logger.info("Redirecting data request packet to one of the Servers")
         #Redirecting data request packet to Server
-        if eth.ethertype == 2048:
-            if eth.ethertype == 'icmp':
-                return
+        if eth.ethertype == 'tcp':
             ip_head = pkt.get_protocols(ipv4.ipv4)[0]
             match = parser.OFPMatch(in_port=in_port, eth_type=eth.ethertype, eth_src=eth.src, eth_dst=eth.dst, ip_proto=ip_head.proto, ipv4_src=ip_head.src, ipv4_dst=ip_head.dst)
             self.logger.info("Data request being sent to Server: IP: %s, MAC: %s", choice_ip, choice_mac)
