@@ -24,9 +24,9 @@ class ShareIt(app_manager.RyuApp):
 		super(ShareIt, self).__init__(*args, **kwargs)
 		self.mac_to_port = {}
 		self.servers = []
-		self.servers.append({'ip':"10.0.0.1", 'mac':"00:00:00:00:00:01", })
-		self.servers.append({'ip':"10.0.0.2", 'mac':"00:00:00:00:00:02"})
-		self.servers.append({'ip':"10.0.0.3", 'mac':"00:00:00:00:00:03"})
+		self.servers.append({'ip':"10.0.0.1", 'mac':"00:00:00:00:00:01", 'port':1})
+		self.servers.append({'ip':"10.0.0.2", 'mac':"00:00:00:00:00:02", 'port':2})
+		self.servers.append({'ip':"10.0.0.3", 'mac':"00:00:00:00:00:03", 'port':3})
 		self.dummyIP = "10.0.0.100"
 		self.dummyMAC = "AB:BC:CD:EF:F1:12"
 		self.serverNumber = 0
@@ -185,6 +185,7 @@ class ShareIt(app_manager.RyuApp):
 					out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
 					in_port=in_port, actions=actions, data=data)
 					datapath.send_msg(out)
+					self.logger.info("harusnya ngisi tabel arp")
 					return
 	
 		
@@ -233,17 +234,17 @@ class ShareIt(app_manager.RyuApp):
 		#tcp_head = pkt.get_protocols(tcp.tcp)[0]
 
 		# pingall before executing load balancer functionality
-		self.logger.info("Trying to map ports and servers")
-		for server in self.servers:
-			try:
-				if server['mac'] in self.mac_to_port[dpid]:
-					try:
-						server['server_port'] = self.mac_to_port[dpid][server['mac']]
-						self.logger.info("Port mapping successful for Server: %s ---check--- %s", server['ip'], server['server_port'])
-					except Exception as e:
-						self.logger.info("Internal Exception: %s", e)
-			except Exception as e:
-				self.logger.info("External Exception: %s", e)
+		# self.logger.info("Trying to map ports and servers")
+		# for server in self.servers:
+		# 	try:
+		# 		if server['mac'] in self.mac_to_port[dpid]:
+		# 			try:
+		# 				server['server_port'] = self.mac_to_port[dpid][server['mac']]
+		# 				self.logger.info("Port mapping successful for Server: %s ---check--- %s", server['ip'], server['server_port'])
+		# 			except Exception as e:
+		# 				self.logger.info("Internal Exception: %s", e)
+		# 	except Exception as e:
+		# 		self.logger.info("External Exception: %s", e)
 
 		self.logger.info("If there is no failure of mapping then we are good to go...")
 		#server choice for round robin style
@@ -251,7 +252,7 @@ class ShareIt(app_manager.RyuApp):
 		
 		choice_ip = self.servers[self.serverNumber]['ip']
 		choice_mac = self.servers[self.serverNumber]['mac']
-		choice_server_port = self.servers[self.serverNumber]['server_port']
+		choice_server_port = self.servers[self.serverNumber]['port']
 		self.logger.info("Server Choice details: \tIP is %s\tMAC is %s\tPort is %s", choice_ip, choice_mac, choice_server_port)
 		
 		
@@ -283,3 +284,4 @@ class ShareIt(app_manager.RyuApp):
 
 		self.serverNumber = self.serverNumber + 1
 		self.logger.info("Redirecting done...2")
+		self.logger.info(self.mac_to_port)
