@@ -32,11 +32,11 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     VIRTUAL_IP = '10.0.0.100'  # The virtual server IP
 
-    SERVER1_IP = '10.0.0.1'
-    SERVER1_MAC = '00:00:00:00:00:01'
+    SERVER1_IP = '10.0.0.11'
+    SERVER1_MAC = '00:00:00:11:11:11'
     SERVER1_PORT = 1
-    SERVER2_IP = '10.0.0.2'
-    SERVER2_MAC = '00:00:00:00:00:02'
+    SERVER2_IP = '10.0.0.22'
+    SERVER2_MAC = '00:00:00:22:22:22'
     SERVER2_PORT = 2
 
     def __init__(self, *args, **kwargs):
